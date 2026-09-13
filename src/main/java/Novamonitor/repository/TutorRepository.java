@@ -1,10 +1,9 @@
 package Novamonitor.repository;
 
-import java.util.Optional;
-
+import Novamonitor.entity.Tutor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import Novamonitor.entity.Tutor;
+import java.util.Optional;
 
 public interface TutorRepository extends JpaRepository<Tutor, Long> {
 

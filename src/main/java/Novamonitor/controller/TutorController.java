@@ -1,11 +1,12 @@
 package Novamonitor.controller;
 
 import Novamonitor.entity.Tutor;
-import Novamonitor.repository.PetRepository;
 import Novamonitor.repository.TutorRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,57 +17,81 @@ import java.util.List;
 public class TutorController {
 
     @Autowired
-    private TutorRepository repository;
+    private TutorRepository tutorRepository;
 
     @Autowired
-    private PetRepository petRepository;
+    private PasswordEncoder passwordEncoder;
+
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Tutor> listar() {
-        return repository.findAll();
+        return tutorRepository.findAll();
     }
+
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIO')")
+    public Tutor buscar(@PathVariable Long id) {
+        return tutorRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado"));
+    }
+
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIO')")
+    @ResponseStatus(HttpStatus.CREATED)
     public Tutor cadastrar(@Valid @RequestBody Tutor tutor) {
-        return repository.save(tutor);
+
+        if (tutorRepository.findByEmail(tutor.getEmail()).isPresent()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Já existe um tutor com este e-mail."
+            );
+        }
+
+        tutor.setPerfil("TUTOR");
+        tutor.setSenha(passwordEncoder.encode(tutor.getSenha()));
+
+        return tutorRepository.save(tutor);
     }
+
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','VETERINARIO')")
     public Tutor atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody Tutor tutor
+            @Valid @RequestBody Tutor dados
     ) {
-        Tutor tutorExistente = repository.findById(id)
+
+        Tutor tutor = tutorRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Tutor não encontrado"
-                        )
-                );
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado"));
 
-        tutorExistente.setNome(tutor.getNome());
-        tutorExistente.setEmail(tutor.getEmail());
-        tutorExistente.setTelefone(tutor.getTelefone());
+        tutor.setNome(dados.getNome());
+        tutor.setEmail(dados.getEmail());
+        tutor.setTelefone(dados.getTelefone());
 
-        return repository.save(tutorExistente);
+        if (dados.getSenha() != null && !dados.getSenha().isBlank()) {
+            tutor.setSenha(passwordEncoder.encode(dados.getSenha()));
+        }
+
+        tutor.setPerfil("TUTOR");
+
+        return tutorRepository.save(tutor);
     }
 
+
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void excluir(@PathVariable Long id) {
-        if (!repository.existsById(id)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Tutor não encontrado"
-            );
-        }
 
-        if (!petRepository.findByTutorId(id).isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "Não é possível excluir o tutor porque existem pets vinculados a ele."
-            );
-        }
+        Tutor tutor = tutorRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado"));
 
-        repository.deleteById(id);
+        tutorRepository.delete(tutor);
     }
 }

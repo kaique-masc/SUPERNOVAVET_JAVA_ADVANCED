@@ -24,26 +24,105 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                       
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/pets/**")
-                        .hasAnyRole("ADMIN", "VETERINARIO")
 
-                        .requestMatchers(HttpMethod.POST, "/pets/**")
-                        .hasAnyRole("ADMIN", "VETERINARIO")
 
-                        .requestMatchers(HttpMethod.PUT, "/pets/**")
-                        .hasAnyRole("ADMIN", "VETERINARIO")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/pets/meus"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "VETERINARIO",
+                                "TUTOR"
+                        )
 
-                        .requestMatchers(HttpMethod.DELETE, "/pets/**")
+
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/pets",
+                                "/pets/criticos",
+                                "/pets/resumo-risco",
+                                "/pets/risco/**",
+                                "/pets/especie/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "VETERINARIO"
+                        )
+
+
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/pets/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "VETERINARIO"
+                        )
+
+
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/pets/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "VETERINARIO"
+                        )
+
+
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/pets/**"
+                        )
                         .hasRole("ADMIN")
 
-                        .requestMatchers("/tutores/**")
+
+
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/tutores/**"
+                        )
+                        .hasAnyRole(
+                                "ADMIN",
+                                "VETERINARIO"
+                        )
+
+
+
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/tutores/**"
+                        )
                         .hasRole("ADMIN")
+
+
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/tutores/**"
+                        )
+                        .hasRole("ADMIN")
+
+
+
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/tutores/**"
+                        )
+                        .hasRole("ADMIN")
+
 
                         .anyRequest()
                         .authenticated()

@@ -1,6 +1,6 @@
 package Novamonitor.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,12 +32,16 @@ public class Tutor {
     @Column(name = "nr_telefone")
     private String telefone;
 
-    @JsonIgnore
+    @NotBlank(message = "A senha é obrigatória")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "ds_senha")
     private String senha;
 
     @Column(name = "ds_perfil")
     private String perfil;
+
+    public Tutor() {
+    }
 
     public Long getId() {
         return id;

@@ -6,6 +6,7 @@ import Novamonitor.repository.PetRepository;
 import Novamonitor.repository.TutorRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -23,10 +24,24 @@ public class PetController {
     @Autowired
     private TutorRepository tutorRepository;
 
+
+
     @GetMapping
     public List<Pet> listar() {
         return petRepository.findAll();
     }
+
+
+
+    @GetMapping("/meus")
+    public List<Pet> listarMeusPets(Authentication authentication) {
+
+        String emailUsuarioLogado = authentication.getName();
+
+        return petRepository.findByTutorEmail(emailUsuarioLogado);
+    }
+
+
 
     @GetMapping("/risco/{nivelRisco}")
     public List<Pet> buscarPorRisco(@PathVariable String nivelRisco) {
@@ -36,11 +51,13 @@ public class PetController {
         );
     }
 
+
     @GetMapping("/especie/{especie}")
     public List<Pet> buscarPorEspecie(@PathVariable String especie) {
 
         return petRepository.findByEspecie(especie);
     }
+
 
     @GetMapping("/criticos")
     public List<Pet> listarPetsCriticos() {
@@ -48,10 +65,13 @@ public class PetController {
         return petRepository.findByNivelRisco("ALTO");
     }
 
+
+
     @GetMapping("/resumo-risco")
     public Map<String, Integer> resumoPorRisco() {
 
-        Map<String, Integer> resumo = new LinkedHashMap<>();
+        Map<String, Integer> resumo =
+                new LinkedHashMap<>();
 
         resumo.put(
                 "BAIXO",
@@ -76,23 +96,32 @@ public class PetController {
         return resumo;
     }
 
+
+
     @PostMapping
-    public Pet cadastrar(@Valid @RequestBody Pet pet) {
+    public Pet cadastrar(
+            @Valid @RequestBody Pet pet) {
 
         Tutor tutorRecebido = pet.getTutor();
 
         Optional<Tutor> tutorExistente =
-                tutorRepository.findByEmail(tutorRecebido.getEmail());
+                tutorRepository.findByEmail(
+                        tutorRecebido.getEmail()
+                );
 
         Tutor tutorFinal;
 
         if (tutorExistente.isPresent()) {
 
-            tutorFinal = tutorExistente.get();
+            tutorFinal =
+                    tutorExistente.get();
 
         } else {
 
-            tutorFinal = tutorRepository.save(tutorRecebido);
+            tutorFinal =
+                    tutorRepository.save(
+                            tutorRecebido
+                    );
         }
 
         pet.setTutor(tutorFinal);
@@ -100,24 +129,41 @@ public class PetController {
         return petRepository.save(pet);
     }
 
+
+
     @PutMapping("/{id}")
     public Pet atualizar(
             @PathVariable Long id,
             @Valid @RequestBody Pet petAtualizado) {
 
-        Pet pet = petRepository.findById(id)
-                .orElseThrow();
+        Pet pet =
+                petRepository
+                        .findById(id)
+                        .orElseThrow();
 
-        pet.setNome(petAtualizado.getNome());
-        pet.setEspecie(petAtualizado.getEspecie());
-        pet.setIdade(petAtualizado.getIdade());
-        pet.setNivelRisco(petAtualizado.getNivelRisco());
+        pet.setNome(
+                petAtualizado.getNome()
+        );
+
+        pet.setEspecie(
+                petAtualizado.getEspecie()
+        );
+
+        pet.setIdade(
+                petAtualizado.getIdade()
+        );
+
+        pet.setNivelRisco(
+                petAtualizado.getNivelRisco()
+        );
 
         return petRepository.save(pet);
     }
 
+
     @DeleteMapping("/{id}")
-    public String deletar(@PathVariable Long id) {
+    public String deletar(
+            @PathVariable Long id) {
 
         petRepository.deleteById(id);
 
