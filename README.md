@@ -1,8 +1,10 @@
 #  SuperNova VET
 
-Aplicação web desenvolvida com **Spring Boot** para gerenciamento e monitoramento de pets, permitindo o cadastro de animais e tutores, acompanhamento do nível de risco dos pets e controle de acesso através de diferentes perfis de usuário.
+Sistema web desenvolvido para gerenciamento e monitoramento de pets.
 
-O projeto utiliza **Oracle Database**, **Spring Data JPA**, **Flyway**, **Spring Security**, **Bean Validation** e **Swagger/OpenAPI**.
+O projeto utiliza **Java com Spring Boot** no backend, **Oracle Database** para persistência dos dados, **Flyway** para versionamento do banco de dados, **Spring Security** para autenticação e autorização e **React + Vite** no frontend.
+
+O sistema possui diferentes níveis de acesso para administradores, veterinários e tutores.
 
 ---
 
@@ -13,26 +15,37 @@ O projeto utiliza **Oracle Database**, **Spring Data JPA**, **Flyway**, **Spring
 
 ---
 
-##  Objetivo do projeto
+##  Objetivo do Projeto
 
-O **SuperNova VET** tem como objetivo auxiliar no gerenciamento e monitoramento de informações relacionadas aos pets.
+O **SuperNova VET** foi desenvolvido para auxiliar no gerenciamento e monitoramento de animais cadastrados.
 
-A aplicação permite:
+O sistema permite:
 
-- Gerenciar pets;
-- Gerenciar tutores;
-- Consultar pets por espécie;
-- Consultar pets por nível de risco;
-- Identificar pets em situação crítica;
-- Gerar um resumo dos animais por nível de risco;
-- Validar os dados enviados para a API;
-- Controlar o acesso através de diferentes perfis de usuário;
-- Armazenar os dados em banco Oracle;
-- Controlar alterações no banco de dados utilizando Flyway.
+- Cadastro de pets
+- Atualização de pets
+- Exclusão de pets
+- Consulta de pets
+- Gerenciamento de tutores
+- Monitoramento dos pets por nível de risco
+- Consulta de animais críticos
+- Resumo dos animais por nível de risco
+- Autenticação de usuários
+- Controle de acesso baseado em perfis
+- Visualização dos próprios pets pelo tutor
+
+O sistema possui três perfis de acesso:
+
+- **ADMIN**
+- **VETERINARIO**
+- **TUTOR**
+
+Cada perfil possui permissões diferentes dentro da aplicação.
 
 ---
 
-#  Tecnologias utilizadas
+#  Tecnologias Utilizadas
+
+## Backend
 
 - Java
 - Spring Boot
@@ -40,112 +53,96 @@ A aplicação permite:
 - Spring Data JPA
 - Spring Security
 - Bean Validation
+- BCrypt
 - Flyway
-- Oracle Database
 - Maven
 - Swagger / OpenAPI
-- Git
-- GitHub
-- IntelliJ IDEA
+
+## Banco de Dados
+
+- Oracle Database
+
+## Frontend
+
+- React
+- Vite
+- JavaScript
+- CSS
+- Fetch API
 
 ---
 
-#  Estrutura do projeto
-
-A aplicação está organizada em diferentes camadas.
+#  Estrutura do Projeto
 
 ```text
-src/main/java/Novamonitor
+SUPERNOVAVET_JAVA_ADVANCED/
 │
-├── config
-│   ├── DataInitializer.java
-│   └── OpenApiConfig.java
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── Novamonitor/
+│       │       ├── controller/
+│       │       ├── entity/
+│       │       ├── exception/
+│       │       ├── repository/
+│       │       └── security/
+│       │
+│       └── resources/
+│           ├── db/
+│           │   └── migration/
+│           └── application.properties
 │
-├── controller
-│   ├── PetController.java
-│   └── TutorController.java
+├── frontend/
+│   ├── src/
+│   ├── package.json
+│   ├── vite.config.js
+│   └── README.md
 │
-├── dto
-│
-├── entity
-│   ├── Pet.java
-│   └── Tutor.java
-│
-├── exception
-│   ├── GlobalExceptionHandler.java
-│   └── ResourceNotFoundException.java
-│
-├── repository
-│   ├── PetRepository.java
-│   └── TutorRepository.java
-│
-├── security
-│   ├── CustomUserDetailsService.java
-│   └── SecurityConfig.java
-│
-└── service
-    └── Petservice.java
-```
-
-As migrations do banco ficam em:
-
-```text
-src/main/resources/db/migration
+├── pom.xml
+└── README.md
 ```
 
 ---
 
-#  Banco de dados
+#  Banco de Dados
 
-O projeto utiliza **Oracle Database**.
+O projeto utiliza **Oracle Database** para persistência dos dados.
 
-As principais entidades utilizadas atualmente pela aplicação Java são:
+Entre as principais entidades utilizadas pela aplicação estão:
 
-### Tutor
+## Tutor
 
-Responsável por armazenar informações dos tutores e também os dados utilizados na autenticação.
+Representa os tutores e usuários utilizados pelo sistema.
 
-Principais campos:
+Principais informações:
 
-```text
-id
-nome
-email
-telefone
-senha
-perfil
-```
+- ID
+- Nome
+- E-mail
+- Telefone
+- Senha
+- Perfil
 
-### Pet
+## Pet
 
-Responsável por armazenar os animais cadastrados no sistema.
+Representa os animais cadastrados no sistema.
 
-Principais campos:
+Principais informações:
 
-```text
-id
-nome
-idade
-especie
-nivelRisco
-tutor
-```
+- ID
+- Nome
+- Idade
+- Espécie
+- Nível de risco
+- Tutor responsável
 
-Existe um relacionamento entre Pet e Tutor.
-
-```text
-Tutor
-  │
-  └──────< Pet
-```
-
-Um tutor pode estar relacionado a diferentes pets.
+Cada pet possui relacionamento com um tutor.
 
 ---
 
 #  Flyway
 
-O projeto utiliza **Flyway** para controle de versão do banco de dados.
+O projeto utiliza **Flyway** para controle e versionamento das alterações realizadas no banco de dados.
 
 As migrations ficam localizadas em:
 
@@ -153,15 +150,19 @@ As migrations ficam localizadas em:
 src/main/resources/db/migration
 ```
 
-Exemplos:
+Como o banco de dados já existia antes da implementação do Flyway, foi utilizado o recurso de **baseline**.
+
+A partir do baseline, novas alterações realizadas no banco passaram a ser controladas através das migrations.
+
+Uma das migrations utilizadas no projeto é:
 
 ```text
-V1__baseline.sql
-V2__criar_tabela_usuario.sql
 V3__adicionar_seguranca_tutor.sql
 ```
 
-A migration V3 adiciona os campos necessários para autenticação e autorização dos usuários.
+Essa migration adicionou os campos necessários para autenticação e controle de perfil dos tutores.
+
+Exemplo:
 
 ```sql
 ALTER TABLE ch_tutor
@@ -171,7 +172,7 @@ ALTER TABLE ch_tutor
     );
 ```
 
-O Flyway executa automaticamente as migrations pendentes durante a inicialização da aplicação.
+As migrations são verificadas automaticamente pelo Flyway durante a inicialização da aplicação.
 
 ---
 
@@ -179,109 +180,208 @@ O Flyway executa automaticamente as migrations pendentes durante a inicializaç�
 
 A aplicação utiliza **Spring Security** para autenticação e autorização.
 
-Foram definidos dois tipos de usuário:
+A autenticação utilizada no projeto é **HTTP Basic Authentication**.
 
-```text
-ADMIN
-VETERINARIO
-```
-
-## Permissões
-
-| Operação | ADMIN | VETERINARIO |
-|---|:---:|:---:|
-| Visualizar pets | ✅ | ✅ |
-| Cadastrar pets | ✅ | ✅ |
-| Atualizar pets | ✅ | ✅ |
-| Excluir pets | ✅ | ❌ |
-| Visualizar tutores | ✅ | ❌ |
-| Gerenciar tutores | ✅ | ❌ |
-| Consultar pets críticos | ✅ | ✅ |
-| Consultar resumo de risco | ✅ | ✅ |
-
-A autenticação da API utiliza **HTTP Basic Authentication**.
-
-As senhas são armazenadas utilizando:
+As senhas dos usuários são protegidas utilizando:
 
 ```text
 BCrypt
 ```
 
-O hash da senha não é retornado nas respostas JSON da API.
+O sistema possui três perfis:
+
+```text
+ADMIN
+VETERINARIO
+TUTOR
+```
+
+Cada perfil possui permissões diferentes.
 
 ---
 
-#  Comportamento da segurança
+#  Perfil ADMIN
 
-Quando um usuário tenta acessar uma rota protegida sem autenticação, a API retorna:
+O administrador possui o maior nível de acesso dentro da aplicação.
 
-```text
-401 Unauthorized
-```
+O ADMIN pode:
 
-Quando um usuário está autenticado, mas não possui permissão:
-
-```text
-403 Forbidden
-```
-
-Quando possui a permissão necessária:
-
-```text
-200 OK
-```
+- Visualizar todos os pets
+- Cadastrar pets
+- Editar pets
+- Excluir pets
+- Visualizar tutores
+- Cadastrar tutores
+- Editar tutores
+- Excluir tutores
+- Visualizar pets críticos
+- Visualizar resumo de risco
 
 ---
 
-#  Validação de dados
+#  Perfil VETERINARIO
 
-A aplicação utiliza **Jakarta Bean Validation** para validar os dados recebidos.
+O veterinário possui acesso ao gerenciamento dos animais, porém possui algumas restrições administrativas.
 
-Entre as validações implementadas estão:
+O VETERINARIO pode:
 
-### Pet
+- Visualizar todos os pets
+- Cadastrar pets
+- Editar pets
+- Visualizar tutores
+- Visualizar pets críticos
+- Visualizar resumo de risco
 
-- Nome obrigatório;
-- Idade obrigatória;
-- Idade não pode ser negativa;
-- Espécie obrigatória;
-- Nível de risco obrigatório;
-- Nível de risco deve ser `BAIXO`, `MEDIO` ou `ALTO`;
-- Tutor obrigatório.
+O VETERINARIO não pode:
 
-### Tutor
+- Excluir pets
+- Cadastrar tutores
+- Editar tutores
+- Excluir tutores
 
-- Nome obrigatório;
-- E-mail obrigatório;
-- Formato de e-mail válido;
-- Telefone obrigatório;
-- Telefone contendo 10 ou 11 números.
+---
 
-Quando existem dados inválidos, a aplicação retorna:
+#  Perfil TUTOR
+
+O tutor possui acesso restrito às informações relacionadas aos próprios animais.
+
+O TUTOR pode:
+
+- Visualizar somente os próprios pets
+- Visualizar o resumo dos próprios pets no frontend
+- Visualizar seus próprios animais classificados como críticos
+
+O TUTOR não pode:
+
+- Visualizar os pets de outros tutores
+- Cadastrar pets
+- Editar pets
+- Excluir pets
+- Visualizar a lista de tutores
+- Cadastrar tutores
+- Editar tutores
+- Excluir tutores
+
+---
+
+#  Permissões
+
+| Funcionalidade | ADMIN | VETERINARIO | TUTOR |
+|---|:---:|:---:|:---:|
+| Visualizar todos os pets | ✅ | ✅ | ❌ |
+| Visualizar próprios pets | ✅ | ✅ | ✅ |
+| Cadastrar pet | ✅ | ✅ | ❌ |
+| Editar pet | ✅ | ✅ | ❌ |
+| Excluir pet | ✅ | ❌ | ❌ |
+| Visualizar tutores | ✅ | ✅ | ❌ |
+| Cadastrar tutor | ✅ | ❌ | ❌ |
+| Editar tutor | ✅ | ❌ | ❌ |
+| Excluir tutor | ✅ | ❌ | ❌ |
+| Pets críticos globais | ✅ | ✅ | ❌ |
+| Resumo de risco global | ✅ | ✅ | ❌ |
+
+---
+
+#  Pets do Tutor Autenticado
+
+Foi criado um endpoint específico para garantir que cada tutor consiga visualizar somente os animais associados à própria conta.
+
+Endpoint:
+
+```http
+GET /pets/meus
+```
+
+O sistema utiliza o usuário autenticado pelo Spring Security para identificar automaticamente o tutor.
+
+No backend, o e-mail é obtido através de:
+
+```java
+authentication.getName()
+```
+
+Depois os pets são pesquisados utilizando o e-mail do tutor autenticado.
+
+Exemplo no repository:
+
+```java
+List<Pet> findByTutorEmail(String email);
+```
+
+Dessa forma, o tutor não precisa informar seu próprio ID na URL.
+
+Isso também impede que um tutor simplesmente altere um ID na requisição para tentar visualizar os animais de outro usuário.
+
+---
+
+#  Funcionalidades Além do CRUD
+
+Além das operações tradicionais de cadastro, consulta, alteração e exclusão, o sistema possui funcionalidades específicas de negócio.
+
+##  Pets Críticos
+
+Endpoint:
+
+```http
+GET /pets/criticos
+```
+
+Essa funcionalidade retorna os animais classificados com nível de risco:
 
 ```text
-400 Bad Request
+ALTO
 ```
+
+Ela pode ser utilizada pelos perfis administrativos para identificar rapidamente os animais que necessitam de maior atenção.
+
+No frontend do TUTOR, os pets críticos são obtidos somente a partir dos próprios animais do usuário autenticado.
+
+---
+
+##  Resumo de Risco
+
+Endpoint:
+
+```http
+GET /pets/resumo-risco
+```
+
+Essa funcionalidade apresenta a quantidade de animais cadastrados em cada nível de risco.
 
 Exemplo:
 
 ```json
 {
-  "especie": "A espécie é obrigatória",
-  "idade": "A idade não pode ser negativa",
-  "nivelRisco": "O nível de risco deve ser BAIXO, MEDIO ou ALTO",
-  "nome": "O nome do pet é obrigatório",
-  "tutor": "O tutor é obrigatório"
+  "BAIXO": 3,
+  "MEDIO": 2,
+  "ALTO": 1,
+  "TOTAL": 6
 }
 ```
 
+Os níveis utilizados são:
+
+```text
+BAIXO
+MEDIO
+ALTO
+```
+
+No frontend do TUTOR, o resumo é calculado somente utilizando os animais retornados pelo endpoint:
+
+```http
+GET /pets/meus
+```
+
+Assim, o tutor não recebe informações globais dos outros animais cadastrados.
+
 ---
 
-#  Funcionalidades
+#  Consulta por Nível de Risco
 
-Além das operações tradicionais de CRUD, foram implementados fluxos específicos do sistema.
+Também é possível consultar animais por um nível específico de risco.
 
-## Consulta por nível de risco
+Endpoint:
 
 ```http
 GET /pets/risco/{nivelRisco}
@@ -289,15 +389,17 @@ GET /pets/risco/{nivelRisco}
 
 Exemplo:
 
-```text
+```http
 GET /pets/risco/ALTO
 ```
 
-Retorna os pets classificados com o nível de risco informado.
-
 ---
 
-## Consulta por espécie
+#  Consulta por Espécie
+
+O sistema também permite pesquisar animais por espécie.
+
+Endpoint:
 
 ```http
 GET /pets/especie/{especie}
@@ -305,27 +407,162 @@ GET /pets/especie/{especie}
 
 Exemplo:
 
-```text
+```http
 GET /pets/especie/Cachorro
 ```
 
-Retorna os pets da espécie informada.
+---
+
+#  Validações
+
+A aplicação utiliza **Bean Validation** para validar os dados recebidos pela API.
+
+Entre as validações implementadas para os pets estão:
+
+- Nome obrigatório
+- Espécie obrigatória
+- Tutor obrigatório
+- Idade obrigatória
+- Idade não pode ser negativa
+- Idade deve respeitar o limite definido
+- Nível de risco obrigatório
+- Nível de risco deve possuir um valor válido
+
+Os níveis aceitos são:
+
+```text
+BAIXO
+MEDIO
+ALTO
+```
+
+Também existem validações para os dados dos tutores, como:
+
+- Nome obrigatório
+- E-mail obrigatório
+- Formato válido de e-mail
+- Telefone obrigatório
+- Quantidade válida de números no telefone
+
+Quando informações inválidas são enviadas, a aplicação retorna:
+
+```text
+HTTP 400 Bad Request
+```
+
+Exemplo de dados inválidos:
+
+```json
+{
+  "nome": "",
+  "idade": -5,
+  "especie": "",
+  "nivelRisco": "URGENTE",
+  "tutor": null
+}
+```
+
+Exemplo de resposta:
+
+```json
+{
+  "nome": "O nome do pet é obrigatório",
+  "idade": "A idade não pode ser negativa",
+  "especie": "A espécie é obrigatória",
+  "nivelRisco": "O nível de risco deve ser BAIXO, MEDIO ou ALTO",
+  "tutor": "O tutor é obrigatório"
+}
+```
+
+O tratamento das validações é realizado através de um tratamento global de exceções.
 
 ---
 
-## Monitoramento de pets críticos
+#  Swagger / OpenAPI
+
+A aplicação possui documentação da API através do **Swagger/OpenAPI**.
+
+Com o backend executando, acesse:
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+O Swagger permite visualizar e testar os endpoints disponíveis.
+
+Como a API utiliza Spring Security, para testar endpoints protegidos é necessário utilizar o botão:
+
+```text
+Authorize
+```
+
+e informar as credenciais de um usuário válido.
+
+---
+
+#  Principais Endpoints
+
+## Autenticação
+
+### Usuário autenticado
+
+```http
+GET /auth/me
+```
+
+Retorna informações do usuário autenticado.
+
+Exemplo:
+
+```json
+{
+  "email": "usuario@email.com",
+  "perfil": "TUTOR"
+}
+```
+
+---
+
+#  Endpoints de Pets
+
+## Listar todos os pets
+
+```http
+GET /pets
+```
+
+Permitido para:
+
+```text
+ADMIN
+VETERINARIO
+```
+
+---
+
+## Listar os próprios pets
+
+```http
+GET /pets/meus
+```
+
+Retorna os pets associados ao usuário autenticado.
+
+O endpoint é utilizado principalmente pelo perfil TUTOR.
+
+---
+
+## Listar pets críticos
 
 ```http
 GET /pets/criticos
 ```
 
-Retorna somente os pets classificados com:
+Retorna os pets classificados com risco:
 
 ```text
 ALTO
 ```
-
-Essa funcionalidade permite identificar rapidamente animais que necessitam de maior atenção.
 
 ---
 
@@ -335,167 +572,251 @@ Essa funcionalidade permite identificar rapidamente animais que necessitam de ma
 GET /pets/resumo-risco
 ```
 
-Retorna um resumo da quantidade de animais em cada nível de risco.
-
-Exemplo:
-
-```json
-{
-  "BAIXO": 2,
-  "MEDIO": 1,
-  "ALTO": 2,
-  "TOTAL": 5
-}
-```
+Retorna a quantidade de animais em cada nível de risco.
 
 ---
 
-#  Principais endpoints
-
-## Pets
-
-### Listar pets
-
-```http
-GET /pets
-```
-
-### Cadastrar pet
-
-```http
-POST /pets
-```
-
-### Atualizar pet
-
-```http
-PUT /pets/{id}
-```
-
-### Excluir pet
-
-```http
-DELETE /pets/{id}
-```
-
-### Buscar por risco
+## Buscar pets por risco
 
 ```http
 GET /pets/risco/{nivelRisco}
 ```
 
-### Buscar por espécie
+---
+
+## Buscar pets por espécie
 
 ```http
 GET /pets/especie/{especie}
 ```
 
-### Pets críticos
+---
+
+## Cadastrar pet
 
 ```http
-GET /pets/criticos
+POST /pets
 ```
 
-### Resumo de risco
+Permitido para:
 
-```http
-GET /pets/resumo-risco
+```text
+ADMIN
+VETERINARIO
+```
+
+Exemplo:
+
+```json
+{
+  "nome": "Thor",
+  "idade": 4,
+  "especie": "Cachorro",
+  "nivelRisco": "MEDIO",
+  "tutor": {
+    "email": "tutor@email.com"
+  }
+}
 ```
 
 ---
 
-## Tutores
+## Atualizar pet
 
-### Listar tutores
+```http
+PUT /pets/{id}
+```
+
+Permitido para:
+
+```text
+ADMIN
+VETERINARIO
+```
+
+---
+
+## Excluir pet
+
+```http
+DELETE /pets/{id}
+```
+
+Permitido somente para:
+
+```text
+ADMIN
+```
+
+---
+
+#  Endpoints de Tutores
+
+## Listar tutores
 
 ```http
 GET /tutores
 ```
 
-### Cadastrar tutor
+Permitido para:
+
+```text
+ADMIN
+VETERINARIO
+```
+
+---
+
+## Buscar tutor por ID
+
+```http
+GET /tutores/{id}
+```
+
+Permitido para:
+
+```text
+ADMIN
+VETERINARIO
+```
+
+---
+
+## Cadastrar tutor
 
 ```http
 POST /tutores
 ```
 
-As rotas de tutores são protegidas e destinadas ao perfil `ADMIN`.
+Permitido somente para:
+
+```text
+ADMIN
+```
 
 ---
 
-#  Swagger / OpenAPI
+## Atualizar tutor
 
-A documentação da API pode ser acessada através do Swagger UI.
-
-Com a aplicação executando localmente, acesse:
-
-```text
-http://localhost:8080/swagger-ui/index.html
+```http
+PUT /tutores/{id}
 ```
 
-A documentação OpenAPI também pode ser acessada em:
+Permitido somente para:
 
 ```text
-http://localhost:8080/v3/api-docs
+ADMIN
 ```
-
-O Swagger possui suporte à autenticação HTTP Basic através da opção **Authorize**.
 
 ---
 
-#  Configuração do banco de dados
+## Excluir tutor
 
-Por segurança, usuário e senha do banco não devem ser armazenados diretamente no repositório.
+```http
+DELETE /tutores/{id}
+```
 
-O `application.properties` utiliza variáveis de ambiente:
+Permitido somente para:
+
+```text
+ADMIN
+```
+
+---
+
+#  Autenticação
+
+O sistema utiliza **HTTP Basic Authentication**.
+
+O fluxo de autenticação funciona da seguinte forma:
+
+```text
+Usuário informa e-mail e senha
+          ↓
+Spring Security
+          ↓
+CustomUserDetailsService
+          ↓
+TutorRepository
+          ↓
+Busca usuário pelo e-mail
+          ↓
+BCrypt valida a senha
+          ↓
+Perfil do usuário é carregado
+          ↓
+Spring Security verifica a permissão da rota
+```
+
+Caso as credenciais estejam incorretas, a aplicação retorna:
+
+```text
+HTTP 401 Unauthorized
+```
+
+Caso o usuário esteja autenticado, mas não possua permissão para determinada operação:
+
+```text
+HTTP 403 Forbidden
+```
+
+---
+
+#  Proteção das Senhas
+
+As senhas dos usuários são protegidas utilizando:
+
+```text
+BCryptPasswordEncoder
+```
+
+As senhas não são retornadas nas respostas JSON da API.
+
+Isso evita que o hash da senha seja exposto ao consultar os dados dos tutores.
+
+---
+
+#  Configuração do Banco de Dados
+
+Por segurança, o usuário e a senha do Oracle não ficam diretamente armazenados no código-fonte.
+
+O arquivo:
+
+```text
+src/main/resources/application.properties
+```
+
+utiliza variáveis de ambiente.
+
+Exemplo:
 
 ```properties
-spring.datasource.url=jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL
 spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}
-spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
-
-spring.jpa.hibernate.ddl-auto=validate
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.database-platform=org.hibernate.dialect.OracleDialect
-
-spring.flyway.enabled=true
-spring.flyway.baseline-on-migrate=true
-spring.flyway.baseline-version=1
 ```
 
-Antes de executar o projeto, configure:
+No Windows, as variáveis podem ser configuradas através do CMD:
 
-```text
-DB_USERNAME
-DB_PASSWORD
+```cmd
+setx DB_USERNAME "SEU_USUARIO"
+setx DB_PASSWORD "SUA_SENHA"
 ```
 
-com as credenciais do seu banco Oracle.
+Depois de configurar as variáveis, é necessário fechar e abrir novamente o terminal e a IDE para que os novos valores sejam carregados.
+
+Cada computador que executar o projeto deverá possuir suas próprias variáveis de ambiente configuradas.
 
 ---
 
-#  Como executar o projeto
+#  Como Executar o Backend
 
-## 1. Pré-requisitos
-
-É necessário possuir:
-
-- JDK compatível com a versão definida no `pom.xml`;
-- Maven;
-- Git;
-- Acesso ao Oracle Database;
-- IntelliJ IDEA ou outra IDE Java.
-
----
-
-## 2. Clonar o repositório
+## 1. Clonar o projeto
 
 ```bash
-git clone URL_DO_REPOSITORIO
+git clone (https://github.com/kaique-masc/SUPERNOVAVET_JAVA_ADVANCED.git)
 ```
 
-Entre na pasta:
+## 2. Entrar na pasta
 
 ```bash
 cd SUPERNOVAVET_JAVA_ADVANCED
@@ -503,58 +824,44 @@ cd SUPERNOVAVET_JAVA_ADVANCED
 
 ---
 
-## 3. Configurar o banco
+## 3. Configurar o Oracle
 
-Configure as variáveis de ambiente:
+Configure:
 
 ```text
 DB_USERNAME
 DB_PASSWORD
 ```
 
-No IntelliJ IDEA elas podem ser configuradas em:
-
-```text
-Run
-→ Edit Configurations
-→ Environment variables
-```
+com as credenciais necessárias para acessar o banco Oracle.
 
 ---
 
 ## 4. Instalar as dependências
 
-No terminal:
+O projeto utiliza Maven.
+
+Execute:
 
 ```bash
 mvn clean install
 ```
 
-No Windows também é possível utilizar o Maven Wrapper do projeto, caso esteja disponível:
-
-```cmd
-mvnw.cmd clean install
-```
+Ou utilize o Maven integrado da IDE.
 
 ---
 
 ## 5. Executar a aplicação
 
-Pelo IntelliJ, execute a classe principal da aplicação Spring Boot.
+Execute a classe principal do Spring Boot pela IDE.
 
-Ou utilize:
+Também é possível utilizar:
 
 ```bash
 mvn spring-boot:run
 ```
 
-Caso utilize Maven Wrapper no Windows:
-
-```cmd
-mvnw.cmd spring-boot:run
-```
-
-A aplicação ficará disponível em:
+Quando a aplicação iniciar corretamente, o backend ficará disponível em:
 
 ```text
 http://localhost:8080
@@ -562,80 +869,262 @@ http://localhost:8080
 
 ---
 
-#  Testando a aplicação
+#  Como Executar o Frontend
 
-Após iniciar o sistema, abra:
-
-```text
-http://localhost:8080/swagger-ui/index.html
-```
-
-Clique em:
+O frontend está localizado na pasta:
 
 ```text
-Authorize
+frontend
 ```
 
-e informe as credenciais de um usuário cadastrado no sistema.
-
-Depois disso será possível testar os endpoints diretamente pelo Swagger.
-
----
-
-#  Controle de versão
-
-O projeto utiliza Git para controle de versão.
-
-Fluxo básico utilizado:
+Entre nela:
 
 ```bash
-git add .
-git commit -m "descricao da alteracao"
-git push origin main
+cd frontend
+```
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Depois execute:
+
+```bash
+npm run dev
+```
+
+O Vite mostrará no terminal o endereço da aplicação.
+
+Normalmente:
+
+```text
+http://localhost:5173
+```
+
+O backend precisa estar executando em:
+
+```text
+http://localhost:8080
+```
+
+para que o frontend consiga acessar a API.
+
+---
+
+#  Funcionamento do Frontend
+
+O frontend identifica o usuário autenticado através do endpoint:
+
+```http
+GET /auth/me
+```
+
+Depois disso, a interface é adaptada de acordo com o perfil retornado pelo backend.
+
+---
+
+## Frontend do ADMIN
+
+O administrador possui acesso a:
+
+- Dashboard
+- Pets
+- Pets críticos
+- Tutores
+
+Também possui acesso às ações administrativas disponíveis.
+
+---
+
+## Frontend do VETERINARIO
+
+O veterinário possui acesso a:
+
+- Dashboard
+- Pets
+- Pets críticos
+- Tutores
+
+Pode cadastrar e editar pets.
+
+As ações administrativas restritas ao ADMIN não ficam disponíveis.
+
+---
+
+## Frontend do TUTOR
+
+O tutor possui acesso a:
+
+- Dashboard
+- Seus pets
+- Seus pets críticos
+
+O TUTOR não possui acesso à tela de gerenciamento de tutores.
+
+Na tela de pets, o frontend utiliza:
+
+```http
+GET /pets/meus
+```
+
+em vez de:
+
+```http
+GET /pets
+```
+
+Dessa forma, somente os animais vinculados ao usuário autenticado são apresentados.
+
+O Dashboard do TUTOR também é calculado utilizando somente seus próprios animais.
+
+A tela de pets críticos do TUTOR considera somente seus próprios animais classificados com nível de risco:
+
+```text
+ALTO
 ```
 
 ---
 
-#  Utilização de Inteligência Artificial
+#  Integração Frontend e Backend
+
+O frontend realiza requisições HTTP para a API Spring Boot.
+
+Durante o desenvolvimento, o Vite utiliza proxy para encaminhar as requisições para:
+
+```text
+http://localhost:8080
+```
+
+Exemplo de fluxo:
+
+```text
+Frontend React
+      ↓
+GET /api/pets/meus
+      ↓
+Vite Proxy
+      ↓
+Spring Boot
+      ↓
+Spring Security
+      ↓
+PetController
+      ↓
+PetRepository
+      ↓
+Oracle Database
+```
+
+---
+
+#  Testes Realizados
+
+Durante o desenvolvimento foram realizados testes dos diferentes níveis de acesso.
+
+Entre os cenários testados estão:
+
+### ADMIN
+
+- Autenticação com sucesso
+- Consulta de pets
+- Consulta de tutores
+- Cadastro de tutor
+- Atualização de tutor
+- Exclusão de tutor
+- Exclusão de pet
+
+### VETERINARIO
+
+- Autenticação com sucesso
+- Consulta de todos os pets
+- Consulta de tutores
+- Cadastro de pet
+- Atualização de pet
+- Bloqueio de operações administrativas
+
+### TUTOR
+
+- Autenticação com sucesso
+- Acesso ao endpoint `/pets/meus`
+- Visualização somente dos próprios pets
+- Bloqueio do endpoint global `/pets`
+- Bloqueio da listagem de tutores
+- Bloqueio de operações de cadastro, edição e exclusão
+
+### Validação
+
+Também foram realizados testes enviando dados inválidos através do Swagger.
+
+A API retornou:
+
+```text
+HTTP 400 Bad Request
+```
+
+com as mensagens correspondentes aos campos inválidos.
+
+---
+
+#  Códigos HTTP Utilizados
+
+A aplicação utiliza códigos HTTP para representar o resultado das requisições.
+
+Alguns exemplos:
+
+| Código | Significado |
+|---|---|
+| 200 | Requisição realizada com sucesso |
+| 201 | Recurso criado com sucesso |
+| 204 | Operação realizada sem conteúdo de retorno |
+| 400 | Dados inválidos |
+| 401 | Usuário não autenticado ou credenciais incorretas |
+| 403 | Usuário autenticado sem permissão |
+| 404 | Recurso não encontrado |
+
+---
+
+#  Uso de Inteligência Artificial
 
 Ferramentas de inteligência artificial foram utilizadas como apoio durante o desenvolvimento do projeto.
 
-A IA foi utilizada principalmente para:
+A IA foi utilizada para:
 
-- Auxiliar na análise de erros;
-- Explicar conceitos do Spring Boot;
-- Auxiliar na configuração do Spring Security;
-- Auxiliar na configuração do Flyway;
-- Sugerir melhorias nas validações;
-- Auxiliar na documentação;
-- Apoiar a resolução de problemas durante a integração das tecnologias.
+- Auxílio na estruturação do projeto
+- Apoio na implementação de funcionalidades
+- Explicação e correção de erros
+- Revisão de código
+- Apoio na configuração do Spring Security
+- Apoio na implementação do Flyway
+- Apoio na integração entre frontend e backend
+- Apoio na criação da documentação
 
-As sugestões foram analisadas, testadas e adaptadas de acordo com as necessidades do projeto.
-
----
-
-#  Considerações finais
-
-O projeto demonstra a construção de uma aplicação Spring Boot integrada ao Oracle Database, utilizando práticas de segurança, validação de dados e versionamento de banco.
-
-Entre os principais conceitos aplicados estão:
-
-- API REST;
-- Spring Boot;
-- Spring Data JPA;
-- Oracle Database;
-- Flyway;
-- Spring Security;
-- Autenticação;
-- Autorização baseada em perfis;
-- BCrypt;
-- Bean Validation;
-- Tratamento de exceções;
-- Swagger/OpenAPI;
-- Git e GitHub.
+As implementações foram analisadas, testadas e adaptadas de acordo com as necessidades e regras do projeto.
 
 ---
 
-## SuperNova VET 🐾
+#  Considerações Finais
 
-Sistema de gerenciamento e monitoramento veterinário desenvolvido para a 3ª Sprint.
+O **SuperNova VET** apresenta uma aplicação web completa integrando frontend, backend e banco de dados.
+
+O projeto implementa:
+
+- Java com Spring Boot
+- API REST
+- Oracle Database
+- Spring Data JPA
+- Flyway
+- Spring Security
+- BCrypt
+- Três perfis de acesso
+- Controle de autorização por perfil
+- Bean Validation
+- Tratamento de erros
+- Swagger/OpenAPI
+- React + Vite
+- Integração frontend e backend
+- Funcionalidades além do CRUD
+- Visualização dos próprios pets pelo tutor
+
+A implementação do perfil **TUTOR** garante que o usuário tenha acesso somente aos animais associados à própria conta, enquanto os perfis **VETERINARIO** e **ADMIN** possuem permissões superiores de acordo com suas responsabilidades dentro do sistema.
