@@ -24,12 +24,18 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                       
+
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+
+                        // procedures/functions do Oracle (Database - Sprint 4)
+                        .requestMatchers("/procedures/**")
+                        .hasAnyRole("ADMIN", "VETERINARIO")
 
 
 
