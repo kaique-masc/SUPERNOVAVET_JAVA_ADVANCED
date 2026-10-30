@@ -33,12 +33,16 @@ az provider register --namespace Microsoft.ContainerRegistry --wait
 az provider register --namespace Microsoft.ContainerInstance --wait
 
 echo "Criando Azure Container Registry..."
-az acr create \
-  --resource-group "$RESOURCE_GROUP" \
-  --name "$ACR_NAME" \
-  --sku Basic \
-  --admin-enabled true \
-  --output table
+if az acr show --name "$ACR_NAME" --resource-group "$RESOURCE_GROUP" > /dev/null 2>&1; then
+  echo "ACR $ACR_NAME ja existe, reaproveitando."
+else
+  az acr create \
+    --resource-group "$RESOURCE_GROUP" \
+    --name "$ACR_NAME" \
+    --sku Basic \
+    --admin-enabled true \
+    --output table
+fi
 
 echo "Gerando a imagem da API no ACR..."
 az acr build \
