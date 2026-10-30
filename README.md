@@ -6,6 +6,31 @@ O projeto utiliza **Java com Spring Boot** no backend, **Oracle Database** para 
 
 O sistema possui diferentes níveis de acesso para administradores, veterinários e tutores.
 
+## Sprint 4
+
+Este repositório é a API usada por todo o projeto SuperNova VET: a aplicação de Java Advanced, o aplicativo mobile e a integração com o banco de dados da disciplina de *Mastering Relational and Non-Relational Database*.
+
+**O que foi adicionado nesta sprint**
+- `PetProcedureRepository`: chama os procedimentos do package `PKG_PET_APP` (`pr_inserir_tutor`, `pr_inserir_pet`, `pr_registrar_vacina`, `pr_atualizar_peso_pet`, `pr_excluir_pet`, `pr_listar_pets`) e o export do dataset em JSON, usando `SimpleJdbcCall`.
+- `PetProcedureController`: expõe os endpoints em `/procedures/**`. Erros do Oracle (`ORA-20001` a `ORA-20006`) são devolvidos como HTTP 400 com a mensagem tratada pela procedure.
+- `POST /auth/register`: cadastro público de usuários com perfil `TUTOR`, usado pela tela de cadastro do app mobile.
+- `PUT /tutores/{id}`: a senha passou a ser opcional na edição (em branco mantém a senha atual).
+- `DELETE /tutores/{id}`: retorna 409 quando o tutor possui pets vinculados.
+- `SecurityConfig`: as rotas `/procedures/**` exigem perfil `ADMIN` ou `VETERINARIO`.
+
+**Repositórios relacionados**
+- Banco de dados (SQL, JSON e MongoDB): https://github.com/FelipeAugusto99/SP4-DATABASE-SUPERNOVA-VET
+- Aplicativo mobile: https://github.com/FelipeAugusto99/SP01MOBILE-SUPERNOVA-VET
+
+**Como testar a integração com o banco**
+1. Rode o script SQL do repositório de Database no Oracle.
+2. Defina as variáveis de ambiente `DB_USERNAME` e `DB_PASSWORD` (as credenciais não ficam no repositório).
+3. Suba a API com `./mvnw spring-boot:run`.
+4. Abra o Swagger em `http://localhost:8080/swagger-ui/index.html` e clique em **Authorize** com o usuário administrador criado pela aplicação.
+5. Teste, por exemplo, `POST /procedures/pets` (sucesso) e o mesmo endpoint com um `idTutor` inexistente (retorna 400 com `ORA-20003`).
+
+Como o script de Database já cria a tabela `ch_tutor` com as colunas `ds_senha` e `ds_perfil`, o Flyway usa `baseline-version=3`: em um banco criado pelo script, as migrations até a V3 são consideradas aplicadas.
+
 ---
 
 ##  Integrantes
