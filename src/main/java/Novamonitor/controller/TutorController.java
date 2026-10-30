@@ -1,9 +1,11 @@
 package Novamonitor.controller;
 
 import Novamonitor.entity.Tutor;
+import Novamonitor.repository.PetRepository;
 import Novamonitor.repository.TutorRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +20,9 @@ public class TutorController {
 
     @Autowired
     private TutorRepository tutorRepository;
+
+    @Autowired
+    private PetRepository petRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -101,6 +106,21 @@ public class TutorController {
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado"));
 
-        tutorRepository.delete(tutor);
+        if (petRepository.existsByTutorId(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Este tutor possui pets vinculados."
+            );
+        }
+
+        try {
+            tutorRepository.delete(tutor);
+            tutorRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Este tutor possui registros vinculados."
+            );
+        }
     }
 }
