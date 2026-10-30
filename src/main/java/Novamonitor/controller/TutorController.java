@@ -62,12 +62,21 @@ public class TutorController {
     @PreAuthorize("hasAnyRole('ADMIN','VETERINARIO')")
     public Tutor atualizar(
             @PathVariable Long id,
-            @Valid @RequestBody Tutor dados
+            @RequestBody Tutor dados
     ) {
 
         Tutor tutor = tutorRepository.findById(id)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Tutor não encontrado"));
+
+        if (dados.getNome() == null || dados.getNome().isBlank()
+                || dados.getEmail() == null || dados.getEmail().isBlank()
+                || dados.getTelefone() == null || !dados.getTelefone().matches("\\d{10,11}")) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Informe nome, e-mail e telefone com 10 ou 11 números."
+            );
+        }
 
         tutor.setNome(dados.getNome());
         tutor.setEmail(dados.getEmail());
