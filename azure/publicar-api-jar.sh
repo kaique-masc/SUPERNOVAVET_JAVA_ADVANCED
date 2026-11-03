@@ -22,6 +22,10 @@ read DB_USERNAME
 echo "Senha do Oracle da FIAP:"
 read -s DB_PASSWORD
 echo ""
+echo "Chave da API Gemini:"
+read -rs GEMINI_API_KEY
+echo ""
+
 
 echo "Gerando o .jar da API..."
 chmod +x mvnw
@@ -73,6 +77,7 @@ az container create \
   --secure-environment-variables \
     DB_USERNAME="$DB_USERNAME" \
     DB_PASSWORD="$DB_PASSWORD" \
+    GEMINI_API_KEY="$GEMINI_API_KEY" \
   --output table
 
 echo ""
