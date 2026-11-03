@@ -11,10 +11,10 @@ O sistema possui diferentes níveis de acesso para administradores, veterinário
 Este repositório é a API usada por todo o projeto SuperNova VET: a aplicação de Java Advanced, o aplicativo mobile e a integração com o banco de dados da disciplina de *Mastering Relational and Non-Relational Database*.
 
 **API online (Azure Container Instance):**
-- Swagger: http://supernovavet-app-563982.brazilsouth.azurecontainer.io:8080/swagger-ui/index.html
-- URL base: http://supernovavet-app-563982.brazilsouth.azurecontainer.io:8080
+- Swagger: http://supernovavet-app-565802.brazilsouth.azurecontainer.io:8080/swagger-ui/index.html
+- URL base: http://supernovavet-app-565802.brazilsouth.azurecontainer.io:8080
 
-A publicação é feita pelo script `azure/publicar-api.sh` (Azure Cloud Shell), que gera a imagem no Azure Container Registry e cria o container com as credenciais do Oracle como variáveis protegidas. O `azure/remover-api.sh` remove os recursos.
+A publicação atual é feita pelo script `azure/publicar-api-jar.sh` (Azure Cloud Shell), que gera o `.jar`, guarda o arquivo em um Azure Files e cria o container com a imagem OpenJDK 17 da Microsoft e as credenciais do Oracle como variáveis protegidas. Ele é usado em assinaturas que não permitem ACR Tasks. O `azure/publicar-api.sh` faz a mesma publicação gerando a imagem no Azure Container Registry, a partir do `Dockerfile`. O `azure/remover-api.sh` remove os recursos.
 
 **O que foi adicionado nesta sprint**
 - `PetProcedureRepository`: chama os procedimentos do package `PKG_PET_APP` (`pr_inserir_tutor`, `pr_inserir_pet`, `pr_registrar_vacina`, `pr_atualizar_peso_pet`, `pr_excluir_pet`, `pr_listar_pets`) e o export do dataset em JSON, usando `SimpleJdbcCall`.
