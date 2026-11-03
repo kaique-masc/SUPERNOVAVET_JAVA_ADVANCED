@@ -58,6 +58,8 @@ export function clearCredentials() {
 export const api = {
   me: () => request('/auth/me'),
 
+  analisarPetIA: (id) => request(`/ia/analisar/${id}`),
+
   pets: () => request('/pets'),
   meusPets: () => request('/pets/meus'),
   resumo: () => request('/pets/resumo-risco'),

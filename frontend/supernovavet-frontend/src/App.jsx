@@ -292,6 +292,9 @@ function Pets({ perfil }) {
   const [busca, setBusca] = useState('')
   const [modal, setModal] = useState(null)
   const [erro, setErro] = useState('')
+  const [analiseIA, setAnaliseIA] = useState(null)
+  const [analisandoIA, setAnalisandoIA] = useState(null)
+
 
   const canWrite = perfil === 'ADMIN' || perfil === 'VETERINARIO'
   const canDelete = perfil === 'ADMIN'
@@ -313,6 +316,28 @@ function Pets({ perfil }) {
   }
 
   useEffect(() => { carregar() }, [])
+  async function analisarComIA(pet) {
+        setAnalisandoIA(pet.id)
+        setAnaliseIA(null)
+        setErro('')
+
+        try {
+            const resultado = await api.analisarPetIA(pet.id)
+
+            setAnaliseIA({
+                petId: pet.id,
+                nome: pet.nome,
+                texto: resultado.analise
+            })
+        } catch (e) {
+            setErro(e.message || 'Não foi possível analisar o pet com IA.')
+        } finally {
+            setAnalisandoIA(null)
+        }
+    }
+
+
+
 
   const filtrados = useMemo(() => {
     const q = busca.toLowerCase()
@@ -344,6 +369,22 @@ function Pets({ perfil }) {
       </div>
 
       {erro && <div className="alert error">{erro}</div>}
+        {analiseIA && (
+            <div className="panel">
+                <h3>🤖 Análise de IA — {analiseIA.nome}</h3>
+
+                <p style={{ whiteSpace: 'pre-wrap' }}>
+                    {analiseIA.texto}
+                </p>
+
+                <button
+                    className="link"
+                    onClick={() => setAnaliseIA(null)}
+                >
+                    Fechar análise
+                </button>
+            </div>
+        )}
 
       <div className="panel">
         <input className="search" placeholder="Buscar por nome, espécie, risco ou tutor..." value={busca} onChange={e => setBusca(e.target.value)} />
@@ -353,7 +394,7 @@ function Pets({ perfil }) {
             <thead>
               <tr>
                 <th>Pet</th><th>Espécie</th><th>Idade</th><th>Risco</th><th>Tutor</th>
-                {canWrite && <th>Ações</th>}
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -364,12 +405,27 @@ function Pets({ perfil }) {
                   <td>{p.idade}</td>
                   <td><span className={`badge risk ${p.nivelRisco?.toLowerCase()}`}>{p.nivelRisco}</span></td>
                   <td>{p.tutor?.nome || '—'}</td>
-                  {canWrite && (
                     <td className="actions">
-                      <button className="link" onClick={() => setModal(p)}>Editar</button>
-                      {canDelete && <button className="link danger" onClick={() => excluir(p)}>Excluir</button>}
+                        <button
+                            className="link"
+                            onClick={() => analisarComIA(p)}
+                            disabled={analisandoIA !== null}
+                        >
+                            {analisandoIA === p.id ? 'Analisando...' : '🤖 Analisar com IA'}
+                        </button>
+
+                        {canWrite && (
+                            <button className="link" onClick={() => setModal(p)}>
+                                Editar
+                            </button>
+                        )}
+
+                        {canDelete && (
+                            <button className="link danger" onClick={() => excluir(p)}>
+                                Excluir
+                            </button>
+                        )}
                     </td>
-                  )}
                 </tr>
               ))}
               {!filtrados.length && <tr><td colSpan="6" className="empty">Nenhum pet encontrado.</td></tr>}

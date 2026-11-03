@@ -5,6 +5,8 @@ import Novamonitor.entity.Pet;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpServerErrorException;
+import java.util.concurrent.TimeUnit;
 
 import java.util.List;
 import java.util.Map;
@@ -71,35 +73,61 @@ public class AnaliseIAService {
                 )
         );
 
-        try {
-            Map resposta = restClient.post()
-                    .uri("https://generativelanguage.googleapis.com/v1beta/models/"
-                            + modelo + ":generateContent")
-                    .header("x-goog-api-key", apiKey)
-                    .body(corpo)
-                    .retrieve()
-                    .body(Map.class);
 
-            if (resposta == null) {
-                return "A IA não retornou uma resposta.";
+        for (int tentativa = 1; tentativa <= 3; tentativa++) {
+            try {
+                Map resposta = restClient.post()
+                        .uri("https://generativelanguage.googleapis.com/v1beta/models/"
+                                + modelo + ":generateContent")
+                        .header("x-goog-api-key", apiKey)
+                        .body(corpo)
+                        .retrieve()
+                        .body(Map.class);
+
+                if (resposta == null) {
+                    return "A IA não retornou uma resposta.";
+                }
+
+                List candidatos = (List) resposta.get("candidates");
+
+                if (candidatos == null || candidatos.isEmpty()) {
+                    return "A IA não gerou uma análise.";
+                }
+
+                Map candidato = (Map) candidatos.get(0);
+                Map conteudo = (Map) candidato.get("content");
+                List partes = (List) conteudo.get("parts");
+                Map primeiraParte = (Map) partes.get(0);
+
+                return (String) primeiraParte.get("text");
+
+            } catch (HttpServerErrorException.ServiceUnavailable e) {
+                System.err.println(
+                        "Gemini indisponível (503). Tentativa "
+                                + tentativa + " de 3."
+                );
+
+                if (tentativa == 3) {
+                    return "O Gemini está temporariamente sobrecarregado. "
+                            + "Tente novamente em alguns minutos.";
+                }
+
+                try {
+                    TimeUnit.SECONDS.sleep(tentativa * 2L);
+                } catch (InterruptedException interrompido) {
+                    Thread.currentThread().interrupt();
+                    return "A análise foi interrompida. Tente novamente.";
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                return "Não foi possível realizar a análise com IA. "
+                        + "Verifique a conexão e a configuração do Gemini.";
             }
+        }
 
-            List candidatos = (List) resposta.get("candidates");
+        return "Não foi possível concluir a análise com IA.";
 
-            if (candidatos == null || candidatos.isEmpty()) {
-                return "A IA não gerou uma análise.";
-            }
-
-            Map candidato = (Map) candidatos.get(0);
-            Map conteudo = (Map) candidato.get("content");
-            List partes = (List) conteudo.get("parts");
-            Map primeiraParte = (Map) partes.get(0);
-
-            return (String) primeiraParte.get("text");
-
-        } catch (Exception e) {
-            return "Não foi possível realizar a análise com IA. "
-                    + "Verifique a conexão e a configuração do Gemini.";
         }
     }
-}
