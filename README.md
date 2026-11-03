@@ -1159,3 +1159,56 @@ O projeto implementa:
 - Visualização dos próprios pets pelo tutor
 
 A implementação do perfil **TUTOR** garante que o usuário tenha acesso somente aos animais associados à própria conta, enquanto os perfis **VETERINARIO** e **ADMIN** possuem permissões superiores de acordo com suas responsabilidades dentro do sistema.
+
+## Sprint 4 — Disruptive Architectures: IoT, IoB & Generative IA
+
+### Solução de inteligência artificial implementada
+
+O SuperNova VET integra a API Gemini, do Google, ao backend Spring Boot para gerar orientações preventivas personalizadas com base nos dados dos pets cadastrados no Oracle Database.
+
+A análise considera nome, espécie, idade e nível de risco do animal. O retorno apresenta prioridade, motivos, recomendações ao tutor, recomendações para a clínica e resumo. A IA fornece orientações educativas e preventivas, sem substituir o atendimento veterinário nem realizar diagnósticos.
+
+### Fluxo da integração
+
+1. O usuário autenticado acessa a tela de Pets no frontend React.
+2. Ao clicar em **Analisar com IA**, o frontend solicita `GET /ia/analisar/{id}` ao backend.
+3. O Spring Security verifica a autenticação e as permissões de acesso ao pet.
+4. O backend consulta os dados do animal no Oracle por meio do repositório de pets.
+5. O serviço `AnaliseIAService` envia um prompt com os dados do pet à API Gemini (`generateContent`).
+6. A resposta é devolvida ao React e exibida na tela de Pets.
+
+A chave da API Gemini permanece no backend e não é enviada ao navegador.
+
+### Configuração da IA para execução local
+
+No arquivo `src/main/resources/application.properties`, a integração utiliza:
+
+```properties
+gemini.api.key=${GEMINI_API_KEY}
+gemini.model=${GEMINI_MODEL:gemini-3.1-flash-lite}
+```
+
+Configure GEMINI_API_KEY nas variáveis de ambiente da execução do Spring Boot. GEMINI_MODEL é opcional e permite selecionar outro modelo compatível com generateContent. Não coloque chaves ou senhas reais no código-fonte ou no GitHub.
+
+Para testar a integração pelo frontend, mantenha o backend local na porta 8080 e configure o proxy de desenvolvimento do Vite para http://localhost:8080.
+
+### Testes e validação realizados
+
+- Inicialização do Spring Boot e conexão com o Oracle confirmadas localmente.
+- Endpoint GET /ia/analisar/1 testado pelo Swagger, com resposta HTTP 200 e análise personalizada do pet Thor.
+- Análise gerada com sucesso usando gemini-3.1-flash-lite, modelo compatível com generateContent na conta utilizada durante os testes.
+- Integração testada na interface React por meio do botão Analisar com IA na tela de Pets.
+- Durante os testes, foram observadas respostas 503 Service Unavailable do Gemini por alta demanda. O backend foi ajustado para realizar até três tentativas em caso de 503, com espera progressiva entre elas.
+O retorno da IA é uma orientação gerada automaticamente, sujeita a indisponibilidade do serviço externo e a limitações de modelos generativos. Recomendações clínicas devem ser avaliadas por profissionais veterinários.
+
+### Resultados e benefícios
+
+Para o tutor, a funcionalidade transforma os dados cadastrados do pet em orientações preventivas mais acessíveis e personalizadas. Para a clínica, organiza pontos de atenção e sugestões de acompanhamento, apoiando a comunicação e a prevenção.
+
+A integração demonstra o fluxo completo entre interface web, autenticação, API REST, banco de dados Oracle e serviço de IA generativa.
+
+### Demonstração da Sprint 4
+
+A demonstração funcional pode ser realizada no ambiente local, com o backend Spring Boot e o frontend React em execução, apresentando a listagem de pets e a geração de uma análise pelo botão Analisar com IA.
+
+A implantação da versão atualizada da IA no Azure não foi necessária para os testes locais descritos nesta seção.
